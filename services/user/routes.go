@@ -64,7 +64,7 @@ func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.userInteface.CreateUser(
+	_, err = h.userInteface.CreateUser(
 		types.User{
 			Firstname: payload.Firstname,
 			Lastname:  payload.Lastname,
