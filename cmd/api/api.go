@@ -14,6 +14,7 @@ import (
 type ApiServer struct {
 	addr   string
 	client *mongo.Client
+	router http.Handler
 }
 
 func NewApiServer(addr string, client *mongo.Client) *ApiServer {
@@ -22,6 +23,7 @@ func NewApiServer(addr string, client *mongo.Client) *ApiServer {
 
 func (s *ApiServer) Run() error {
 	router := mux.NewRouter()
+
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 	database := s.client.Database(config.Envs.DBName)
 	userCollection:= database.Collection(config.Collections.Users)
@@ -35,5 +37,9 @@ func (s *ApiServer) Run() error {
 	blogHander:= blog.NewHandler(blogStore,userStore)
 	blogHander.RegisterRoutes(subRouter)
 	log.Println("Listening on port: ", s.addr)
-	return http.ListenAndServe(s.addr, subRouter)
+	return http.ListenAndServe(":3000", subRouter)
+}
+
+func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/Mikiejoe/go-blog-api/db"
 )
 
+
 func main() {
 
 	client := db.NewStorage(config.Envs.MongoUrl,config.Envs.DBName)
