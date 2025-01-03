@@ -79,7 +79,7 @@ func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]any{"id": id, "password": password})
+	utils.WriteSuccess(w, http.StatusCreated, "user created successfully")
 }
 
 func (h *Handler) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,14 +116,14 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusNotFound, fmt.Errorf("incorrect username or password"))
 		return
 	}
-	secret:=[]byte(config.Envs.JWTSecret)
-	token,err:= auth.CreateJWT(secret,user.ID.Hex())
-	if err!=nil{
-		utils.WriteError(w,http.StatusInternalServerError,err)
-		return 
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, user.ID.Hex())
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
-		"token":token,
+		"token": token,
 	})
 
 }
