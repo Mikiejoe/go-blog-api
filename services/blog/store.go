@@ -2,6 +2,7 @@ package blog
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Mikiejoe/go-blog-api/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -44,6 +45,7 @@ func (s *Store) GetBlogs() ([]types.Blog, error) {
 
 	return blogs, nil
 }
+
 func (s *Store) GetBlogByID(id string) (types.Blog, error) {
 	var blog types.Blog
 	docId, err := primitive.ObjectIDFromHex(id)
@@ -51,7 +53,9 @@ func (s *Store) GetBlogByID(id string) (types.Blog, error) {
 		return blog, err
 	}
 	filter := bson.D{{Key: "_id", Value: docId}}
+	fmt.Println("object id is", docId)
 	err = s.collection.FindOne(context.Background(), filter).Decode(&blog)
+	fmt.Printf("blog is %#v", blog)
 	if err == mongo.ErrNoDocuments {
 		return types.Blog{}, mongo.ErrNoDocuments
 	} else if err != nil {
@@ -60,9 +64,19 @@ func (s *Store) GetBlogByID(id string) (types.Blog, error) {
 
 	return blog, nil
 }
-func (s *Store) UpdateBlog(string) error {
+func (s *Store) UpdateBlog(id string, blog types.Blog) error {
+	docId, err := primitive.ObjectIDFromHex(id)
+	var newBlog types.Blog
+	if err != nil {
+		return err
+	}
+	filter := bson.D{{Key: "_id", Value: docId}}
+	result := s.collection.FindOneAndUpdate(context.Background(), filter, blog)
+	if err := result.Decode(&newBlog); err != nil {
+		return err
+	}
 	return nil
 }
-func (s *Store) DeleteBlog(string) error {
+func (s *Store) DeleteBlog(id string) error {
 	return nil
 }

@@ -21,7 +21,7 @@ func NewStorage(uri, dbName string) (mongo.Client) {
 		panic(err)
 	}
 
-	log.Println("Batabase connected successfully")
+	log.Println("Succesfully connected to ",dbName)
 	return *client
 }
 
