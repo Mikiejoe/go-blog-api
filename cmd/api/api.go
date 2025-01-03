@@ -14,11 +14,12 @@ import (
 type ApiServer struct {
 	addr   string
 	client *mongo.Client
-	router http.Handler
+	router *mux.Router
 }
 
 func NewApiServer(addr string, client *mongo.Client) *ApiServer {
-	return &ApiServer{addr: addr, client: client}
+	router := mux.NewRouter()
+	return &ApiServer{addr: addr, client: client,router:router}
 }
 
 func (s *ApiServer) Run() error {
@@ -40,6 +41,23 @@ func (s *ApiServer) Run() error {
 	return http.ListenAndServe(":3000", subRouter)
 }
 
+func (s *ApiServer) setupRoutes() {
+	
+	subRouter := s.router.PathPrefix("/api/v1").Subrouter()
+	database := s.client.Database(config.Envs.DBName)
+	userCollection:= database.Collection(config.Collections.Users)
+	blogsCollection:= database.Collection(config.Collections.Blogs)
+
+	blogStore:= blog.NewStore(blogsCollection)
+	userStore := user.NewStore(userCollection)
+
+	userHandler := user.NewHandler(userStore)
+	userHandler.RegisterRoutes(subRouter)
+	blogHander:= blog.NewHandler(blogStore,userStore)
+	blogHander.RegisterRoutes(subRouter)
+}
+
 func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.setupRoutes()
 	s.router.ServeHTTP(w, r)
 }
