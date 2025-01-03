@@ -25,10 +25,4 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func Handler(w http.ResponseWriter, r *http.Request) {
-// 	if server == nil {
-// 		http.Error(w, "Server not initialized", http.StatusInternalServerError)
-// 		return
-// 	}
-	
-// }
+
